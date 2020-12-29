@@ -24,8 +24,6 @@
 #' will reduce the amount of command-line output.
 #' @param intern Display runtime information from SS in the R console (vs.
 #' saving to a file).
-#' @param CallType Either "system" or "shell" (choice depends on how you're running
-#' R. Default is "system".
 #' @param RemoveBlocks Logical switch determining whether specifications of
 #' blocks is removed from top of control file. Blocks can cause problems for
 #' retrospective analyses, but the method for removing them is overly
@@ -50,7 +48,7 @@
 #'
 SS_doRetro <- function(masterdir, oldsubdir, newsubdir = "retrospectives",
                        subdirstart = "retro", years = 0:-5, overwrite = TRUE,
-                       exefile = "ss", extras = "-nox", intern = FALSE, CallType = "system",
+                       exefile = "ss", extras = "-nox", intern = FALSE, 
                        RemoveBlocks = FALSE) {
 
   # this should always be "windows" or "unix" (includes Mac and Linux)
@@ -147,29 +145,24 @@ SS_doRetro <- function(masterdir, oldsubdir, newsubdir = "retrospectives",
       # but avoid otherwise in case they mess something up
       exefile_to_run <- exefile
     }
-    command <- paste0(prefix, exefile_to_run, " ", extras)
+    command <- paste0(prefix, exefile_to_run)
 
     # run model
     message("Running model in ", getwd(), "\n",
-      "using the command:\n   ", command,
-      sep = ""
+      "using the command:\n   ", command, " ", extras
     )
 
-    if (file.exists("covar.sso")) file.remove("covar.sso")
+    if (file.exists("covar.sso")) {
+      file.remove("covar.sso")
+    }
     if (intern) {
       message("ADMB output generated during model run will be written to:\n   ",
-        getwd(), "/ADMBoutput.txt. \n   To change this, set intern=FALSE\n",
-        "Note: ignore message about 'Error trying to open data input file ss3.dat'\n",
-        sep = ""
+        getwd(), "/ADMBoutput.txt. \n   To change this, set intern=FALSE.",
       )
     }
 
-    if (CallType == "system") {
-      ADMBoutput <- system(command, intern = intern)
-    }
-    if (CallType == "shell") {
-      ADMBoutput <- shell(command, intern = intern)
-    }
+    ADMBoutput <- system2(command, args = extras, intern = intern)
+
     # add rough check for if the model ran (although a report file may exist if
     # if the model only ran part of the way through). Warn the user in this case.
     if (!file.exists("Report.sso")) {

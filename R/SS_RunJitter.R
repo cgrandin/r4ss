@@ -6,15 +6,12 @@
 #'
 #' @param mydir Directory where model files are located.
 #' @template model
-#' @param extras Additional command line arguments passed to the executable.
-#'   The default, \code{"-nohess"}, runs each jittered model without the hessian.
+#' @template extras 
 #' @param Njitter Number of jitters, or a vector of jitter iterations.
 #'   If \code{length(Njitter) > 1} only the iterations specified will be ran,
 #'   else \code{1:Njitter} will be executed.
 #' @param Intern Show command line info in R console or keep hidden. The default,
 #'   \code{TRUE}, keeps the executable hidden.
-#' @param systemcmd Option to switch between 'shell' and 'system'. The default,
-#'   \code{FALSE}, facilitates using the shell command on Windows.
 #' @param printlikes A logical value specifying if the likelihood values should
 #'   be printed to the console.
 #' @template verbose
@@ -55,7 +52,6 @@ SS_RunJitter <- function(mydir,
                          extras = "-nohess",
                          Njitter,
                          Intern = TRUE,
-                         systemcmd = FALSE,
                          printlikes = TRUE,
                          verbose = FALSE,
                          jitter_fraction = NULL,
@@ -124,11 +120,8 @@ SS_RunJitter <- function(mydir,
         "\nUsing the command: ", command
       )
     }
-    if (.Platform[["OS.type"]] == "windows" & !systemcmd) {
-      shell(cmd = command, intern = Intern)
-    } else {
-      system(command, intern = Intern, show.output.on.console = !Intern)
-    }
+    system2(command, args = extras, intern = Intern,
+            show.output.on.console = !Intern)
     # Only save stuff if it converged
     if ("Report.sso" %in% list.files()) {
       rep <- SS_read_summary()

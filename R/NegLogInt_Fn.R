@@ -27,6 +27,7 @@
 #' hardwired to Version = 1.
 #' @param StartFromPar Logical flag (TRUE or FALSE) saying whether to start each
 #' round of optimization from a ".par" file (I recommend TRUE)
+#' @template extras
 #' @param Intern Logical flag saying whether to display all ss3 runtime output
 #' in the R terminal
 #' @param ReDoBiasRamp Logical flag saying whether to re-do the bias ramp
@@ -39,8 +40,6 @@
 #' Default is NULL, and if not explicitly specified the program will attempt to
 #' detect these automatically based on the length of relevant lines from the CTL
 #' file.
-#' @param systemcmd Should R call SS using "system" function instead of "shell".
-#' This may be required when running R in Emacs on Windows. Default = FALSE.
 #' @param exe SS executable name (excluding extension), either "ss" or "ss3".
 #' This string is used for both calling the executable and also finding the
 #' output files like ss.par. For 3.30, it should always be "ss" since the
@@ -70,13 +69,19 @@
 #' )
 #' }
 #'
-NegLogInt_Fn <- function(File = NA, Input_SD_Group_Vec,
-                         CTL_linenum_List, ESTPAR_num_List,
-                         PAR_num_Vec, Int_Group_List = list(1),
-                         StartFromPar = TRUE, Intern = TRUE,
-                         ReDoBiasRamp = FALSE, BiasRamp_linenum_Vec = NULL,
-                         CTL_linenum_Type = NULL, systemcmd = FALSE,
-                         exe = "ss") {
+NegLogInt_Fn <- function(File = NA,
+                         Input_SD_Group_Vec,
+                         CTL_linenum_List,
+                         ESTPAR_num_List,
+                         PAR_num_Vec,
+                         Int_Group_List = list(1),
+                         StartFromPar = TRUE,
+                         Intern = TRUE,
+                         ReDoBiasRamp = FALSE,
+                         BiasRamp_linenum_Vec = NULL,
+                         CTL_linenum_Type = NULL, 
+                         exe = "ss",
+                         extras = "-nohess") {
   # test exe input
   if (!(exe == "ss" | exe == "ss3")) {
     # turns out 3.30 != "3.30" in R
@@ -222,15 +227,11 @@ NegLogInt_Fn <- function(File = NA, Input_SD_Group_Vec,
 
   # Run SS
   setwd(File)
-  command <- paste0(exe, " -nohess -cbs 500000000 -gbs 500000000")
+  command <- exe
   if (OS != "Windows") {
     command <- paste0("./", command)
   }
-  if (OS == "Windows" & !systemcmd) {
-    shell(cmd = command, intern = Intern)
-  } else {
-    system(command, intern = Intern)
-  }
+  system2(exe, args = extras, intern = Intern)
   Sys.sleep(1)
 
   # Check convergence

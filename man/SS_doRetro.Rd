@@ -14,7 +14,6 @@ SS_doRetro(
   exefile = "ss",
   extras = "-nox",
   intern = FALSE,
-  CallType = "system",
   RemoveBlocks = FALSE
 )
 }
@@ -46,9 +45,6 @@ will reduce the amount of command-line output.}
 
 \item{intern}{Display runtime information from SS in the R console (vs.
 saving to a file).}
-
-\item{CallType}{Either "system" or "shell" (choice depends on how you're running
-R. Default is "system".}
 
 \item{RemoveBlocks}{Logical switch determining whether specifications of
 blocks is removed from top of control file. Blocks can cause problems for

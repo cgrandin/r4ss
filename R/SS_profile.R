@@ -23,11 +23,8 @@
 #' @param dircopy Copy directories for each run? NOT IMPLEMENTED YET.
 #' @param exe.delete Delete exe files in each directory?  NOT IMPLEMENTED YET.
 #' @param profilevec Vector of values to profile over.  Default = NULL.
-#' @param model Name of executable. Default = "ss".
-#' @param extras Additional commands to use when running SS. Default = "-nox"
-#' will reduce the amount of command-line output.
-#' @param systemcmd Should R call SS using "system" function instead of "shell".
-#' This may be required when running R in Emacs. Default = FALSE.
+#' @template model
+#' @template extras
 #' @param saveoutput Copy output .SSO files to unique names.  Default = TRUE.
 #' @param overwrite Overwrite any existing .SSO files. Default = TRUE. If FALSE,
 #' then some runs may be skipped.
@@ -307,19 +304,18 @@ SS_profile <-
         if (file.exists("Report.sso")) file.remove("Report.sso")
 
         # run model
-        command <- paste(model, extras)
-        if (OS != "windows") command <- paste("./", command, sep = "")
-        cat("Running model in directory:", getwd(), "\n")
-        cat("Using the command: '", command, "'\n", sep = "")
-        if (OS == "windows" & !systemcmd) {
-          shell(cmd = command)
-        } else {
-          system(command)
+        command <- paste(model)
+        if (OS != "windows") {
+          command <- paste0("./", command)
         }
+        message("Running model in directory:", getwd())
+        message("Using the command: '", command, extras)
+        system2(command, args = extras)
 
         converged[i] <- file.exists(stdfile)
         onegood <- FALSE
-        if (read_like && file.exists("Report.sso") & file.info("Report.sso")$size > 0) {
+        if (read_like && file.exists("Report.sso") &
+            file.info("Report.sso")$size > 0) {
           onegood <- TRUE
           Rep <- readLines("Report.sso", n = 200)
           like <- read.table("Report.sso", skip = grep("LIKELIHOOD", Rep)[2] + 0, nrows = 11, header = TRUE, fill = TRUE)

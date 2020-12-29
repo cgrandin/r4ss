@@ -10,7 +10,6 @@ SS_RunJitter(
   extras = "-nohess",
   Njitter,
   Intern = TRUE,
-  systemcmd = FALSE,
   printlikes = TRUE,
   verbose = FALSE,
   jitter_fraction = NULL,
@@ -23,8 +22,8 @@ SS_RunJitter(
 \item{model}{Executable name of the \code{.exe} file in \code{mydir}
 without the extension, e.g., \code{"ss"}.}
 
-\item{extras}{Additional command line arguments passed to the executable.
-The default, \code{"-nohess"}, runs each jittered model without the hessian.}
+\item{extras}{Additional ADMB command line arguments passed
+to the executable.}
 
 \item{Njitter}{Number of jitters, or a vector of jitter iterations.
 If \code{length(Njitter) > 1} only the iterations specified will be ran,
@@ -32,9 +31,6 @@ else \code{1:Njitter} will be executed.}
 
 \item{Intern}{Show command line info in R console or keep hidden. The default,
 \code{TRUE}, keeps the executable hidden.}
-
-\item{systemcmd}{Option to switch between 'shell' and 'system'. The default,
-\code{FALSE}, facilitates using the shell command on Windows.}
 
 \item{printlikes}{A logical value specifying if the likelihood values should
 be printed to the console.}
