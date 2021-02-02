@@ -513,23 +513,17 @@ SSsummarize <- function(biglist,
             x2 <- rbind(x2, x.Yr)
           } else {
             # more than 1 row associated with this year
-            # create empty row with matching names
-            newrow <- data.frame(t(rep(NA, n)),
-              Label = paste0("Multiple_labels_", Yr), Yr = Yr
-            )
-            names(newrow) <- names(x)
-            # loop over models to pick the (hopefully) unique value among rows
-            for (icol in 1:n) {
-              good <- !is.na(x.Yr[, icol])
-              if (sum(good) > 1) {
-                # warn if more than 1 value
-                warning("multiple recdevs values associated with year =", Yr)
-              }
-              if (sum(good) == 1) {
-                # put good value into new row
-                newrow[, icol] <- x.Yr[good, icol]
-              }
-              # if there are no good values, this model likely ends prior to Yr
+            # merge the data in the rows into one row to avoid NA's because some
+            # models could be in Main_ period and others in the Late_ period
+            # Note the first value per column that is not NA will be used
+            # Set the year to the Late period
+            newrow <- x.Yr %>%
+              purrr::map_df(~{first(.x[!is.na(.x)])}) %>%
+              dplyr::slice(1)
+            newrow$Label <- sub("Main", "Late", newrow$Label)
+            if(nrow(x.Yr) > 1){
+              warning("Multiple recdevs values associated with year = ", Yr,
+                      ". Merged into one row with label = ", newrow$Label, ".")
             }
             # add new row to new data.frame
             x2 <- rbind(x2, newrow)

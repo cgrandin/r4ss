@@ -179,6 +179,11 @@ SSplotRetroRecruits <-
       if (length(tmp) > 0) { # there are some mcmc values to use
         mcmc.tmp <- mcmc[[imodel]][, tmp] # subset of columns from MCMC for this model
         mcmclabs <- names(mcmc.tmp)
+        yrvec <- endyrvec -1
+        map_chr(yrvec, ~{
+          j <- grep(paste0("RecrDev_", .x), mcmclabs)
+          mcmclabs[j] <<- paste0("Late_RecrDev_", .x)
+        })
         lower <- apply(mcmc.tmp, 2, quantile, prob = lowerCI) # hard-wired probability
         med <- apply(mcmc.tmp, 2, quantile, prob = 0.5) # hard-wired probability
         upper <- apply(mcmc.tmp, 2, quantile, prob = upperCI) # hard-wired probability
